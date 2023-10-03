@@ -477,7 +477,7 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   /// 在 [build] 完成时，恢复为 `false`, 以待下次重建
   bool _dirty = false;
 
-  late final TextStyle style = widget._textStyle ?? _$defaultTextStyle;
+  late TextStyle style = widget._textStyle ?? _$defaultTextStyle;
 
   /// the controller value or widget value
   num get currentValue => widget.controller?.value ?? widget.value!;
@@ -607,6 +607,13 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     widget.controller?.addListener(_updateValue);
     if (widget.controller == null) {
       _updateValue();
+    }
+
+    if (widget._textStyle != oldWidget._textStyle) {
+      _rebuild();
+      setState(() {
+        style = widget._textStyle ?? _$defaultTextStyle;
+      });
     }
   }
 
@@ -854,8 +861,13 @@ class _AnimatedSingleWidgetState extends State<_AnimatedSingleWidget> {
 
   /// 设置一个新的值
   void setValue(String newValue) {
-    currentValue = newValue;
-    _animateTo();
+    // Set the current value in the next frame to avoid
+    // cases where this widget is initialized and updated
+    // in the same frame.
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      currentValue = newValue;
+      _animateTo();
+    });
   }
 
   /// 是否为非数字的符号
