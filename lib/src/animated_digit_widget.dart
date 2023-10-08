@@ -539,6 +539,21 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
   }
 
   @override
+  void didUpdateWidget(AnimatedDigitWidget oldWidget) {
+    widget.controller?.removeListener(_updateValue);
+    super.didUpdateWidget(oldWidget);
+    widget.controller?.addListener(_updateValue);
+    if (widget.controller == null) {
+      _updateValue();
+    }
+
+    if (widget._textStyle != oldWidget._textStyle) {
+      style = widget._textStyle ?? _$defaultTextStyle;
+      _markNeedRebuild();
+    }
+  }
+
+  @override
   void reassemble() {
     super.reassemble();
     _markNeedRebuild();
@@ -598,23 +613,6 @@ class _AnimatedDigitWidgetState extends State<AnimatedDigitWidget>
     }
 
     return result;
-  }
-
-  @override
-  void didUpdateWidget(AnimatedDigitWidget oldWidget) {
-    widget.controller?.removeListener(_updateValue);
-    super.didUpdateWidget(oldWidget);
-    widget.controller?.addListener(_updateValue);
-    if (widget.controller == null) {
-      _updateValue();
-    }
-
-    if (widget._textStyle != oldWidget._textStyle) {
-      _rebuild();
-      setState(() {
-        style = widget._textStyle ?? _$defaultTextStyle;
-      });
-    }
   }
 
   @override
